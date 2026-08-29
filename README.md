@@ -6,6 +6,12 @@ A tiny Unix shell written in C, built from scratch for learning process creation
 
 ---
 
+## Demo
+
+![minish demo](assets/demo.gif)
+
+---
+
 ## ✨ Features
 
 Currently, minish supports:
