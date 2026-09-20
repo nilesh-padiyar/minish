@@ -1,10 +1,12 @@
 #include <errno.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #define BUFF_SIZE 1024
 #define MAX_ARGS 64
@@ -19,7 +21,7 @@ int main(void)
 
     while (1)
     {
-        printf(GREEN "minish >>> " RESET);
+        printf(GREEN "minish $ " RESET);
         fflush(stdout);
 
         if (fgets(input, sizeof(input), stdin) == NULL)
@@ -37,6 +39,11 @@ int main(void)
         }
         argv[argc] = NULL;
 
+        if (strcasecmp(argv[0], "exit") == 0)
+        {
+            break;
+        }
+
         if (argv[0] == NULL)
         {
             continue;
@@ -49,13 +56,37 @@ int main(void)
             exit(EXIT_FAILURE);
         }
 
-        if (strcasecmp(argv[0], "exit") == 0)
-        {
-            break;
-        }
-
         if (pid == 0)
         {
+            for (int i = 0; i < argc; i++)
+            {
+                if (strcasecmp(argv[i], ">") == 0)
+                {
+                    if ((i + 1) >= argc)
+                    {
+                        fprintf(stderr, "minish: expected filename after '>'\n");
+                    }
+
+                    int fd = open(argv[i + 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+                    if (fd == -1)
+                    {
+                        perror("minish: open");
+                        exit(EXIT_FAILURE);
+                    }
+                    
+                    if (dup2(fd, STDOUT_FILENO) == -1)
+                    {
+                        perror("minish: open");
+                        close(fd);
+                        exit(EXIT_FAILURE);
+                    }
+                    close(fd);
+
+                    argv[i] = NULL;
+                    break;
+                }
+            }
+
             int err = execvp(argv[0], argv);
 
             if (err == -1)
