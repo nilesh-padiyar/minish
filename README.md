@@ -24,7 +24,8 @@ Currently, minish supports:
 * Basic command parsing
 * Interactive shell prompt
 * Output redirection using `>`
-* File creation and truncation using `open()`
+* Append redirection using `>>`
+* File creation, truncation and append using `open()`
 * File descriptor duplication using `dup2()`
 
 Example:
@@ -34,9 +35,10 @@ minish $ ls -l
 minish $ pwd
 minish $ fastfetch
 minish $ echo "hello world" > output.txt
+minish $ echo "hello again" >> output.txt
 ```
 
-Output redirection works by redirecting the child process's standard output to a file before executing the requested program.
+Output/Append redirection works by redirecting the child process's standard output to a file before executing the requested program.
 
 ---
 
@@ -48,7 +50,6 @@ minish does **not** currently support:
 
 * Pipes (`|`)
 * Input redirection (`<`)
-* Append redirection (`>>`)
 * Background processes (`&`)
 * Environment variable expansion
 * Quoting and escaping
@@ -102,24 +103,26 @@ minish $ pwd
 minish $ fastfetch
 ```
 
-### Output Redirection
+### Output/Append Redirection
 
-minish supports basic output redirection using `>`:
+minish supports output/append redirection using `>` and `>>` respectively:
 
 ```text
 minish $ echo "hello world" > hello.txt
+minish $ echo "hello again" >> hello.txt
 ```
 
-The command's standard output is redirected to `hello.txt` instead of the terminal.
+The command's standard output (`stdout`) is redirected to `hello.txt` instead of the terminal.
 
 For example:
 
 ```text
 minish $ cat hello.txt
 hello world
+hello again
 ```
 
-If the specified file does not exist, minish creates it. If it already exists, its contents are truncated before the command runs.
+If the specified file does not exist, minish creates it. If it already exists, its contents are truncated/appended before the command runs.
 
 To exit, use:
 
@@ -131,7 +134,7 @@ minish $ exit
 
 This project was created primarily to understand how a Unix shell works internally.
 
-Instead of using a library or framework that abstracts away process management, minish works directly with POSIX system calls such as:
+Instead of using a library or framework that abstracts away process management, minish works directly with **POSIX** system calls such as:
 
 ```text
 fork()
@@ -170,9 +173,9 @@ The roadmap is intentionally open-ended. The goal is to use each feature as an o
 
 ## 📌 Version
 
-**v0.2.0** — Basic output redirection
+**v0.3.0** — Append Redirection
 
-minish v0.2.0 builds on the basic process execution model by adding output redirection:
+minish v0.3.0 builds on the basic process execution model by adding append redirection:
 
 > **Parse a command → create a child process → redirect its stdout → execute it → wait for it to finish.**
 
@@ -185,4 +188,3 @@ The goal remains the same: keep the implementation small while learning the unde
 This project is licensed under the MIT License. See [`LICENSE`](LICENSE) for details.
 
 ---
-

@@ -1,4 +1,5 @@
 #include <errno.h>
+#include <fcntl.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,7 +7,6 @@
 #include <strings.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <fcntl.h>
 
 #define BUFF_SIZE 1024
 #define MAX_ARGS 64
@@ -39,7 +39,7 @@ int main(void)
         }
         argv[argc] = NULL;
 
-        if (strcasecmp(argv[0], "exit") == 0)
+        if (strcasecmp(argv[0], "exit") == 0 || strcasecmp(argv[0], ":q") == 0)
         {
             break;
         }
@@ -60,31 +60,45 @@ int main(void)
         {
             for (int i = 0; i < argc; i++)
             {
+                int flags;
+
                 if (strcasecmp(argv[i], ">") == 0)
                 {
-                    if ((i + 1) >= argc)
-                    {
-                        fprintf(stderr, "minish: expected filename after '>'\n");
-                    }
-
-                    int fd = open(argv[i + 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-                    if (fd == -1)
-                    {
-                        perror("minish: open");
-                        exit(EXIT_FAILURE);
-                    }
-                    
-                    if (dup2(fd, STDOUT_FILENO) == -1)
-                    {
-                        perror("minish: open");
-                        close(fd);
-                        exit(EXIT_FAILURE);
-                    }
-                    close(fd);
-
-                    argv[i] = NULL;
-                    break;
+                    flags = O_WRONLY | O_CREAT | O_TRUNC;
                 }
+                else if (strcasecmp(argv[i], ">>") == 0)
+                {
+                    flags = O_WRONLY | O_CREAT | O_APPEND;
+                }
+                else
+                {
+                    continue;
+                }
+
+                if ((i + 1) >= argc)
+                {
+                    fprintf(stderr, "minish: expected filename after '%s'\n", argv[i]);
+                    exit(EXIT_FAILURE);
+                }
+
+                int fd = open(argv[i + 1], flags, 0644);
+                if (fd == -1)
+                {
+                    perror("minish: open");
+                    exit(EXIT_FAILURE);
+                }
+
+                if (dup2(fd, STDOUT_FILENO) == -1)
+                {
+                    perror("minish: dup2");
+                    close(fd);
+                    exit(EXIT_FAILURE);
+                }
+
+                close(fd);
+
+                argv[i] = NULL;
+                break;
             }
 
             int err = execvp(argv[0], argv);

@@ -1,4 +1,4 @@
-CC = gcc
+CC ?= gcc
 
 CFLAGS = -std=c11 -O2 -Wall -Werror -Wextra -pedantic
 DEBUGFLAGS = -std=c11 -O0 -g -Wall -Werror -Wextra -pedantic
