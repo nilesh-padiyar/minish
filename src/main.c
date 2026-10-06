@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
@@ -23,7 +22,6 @@ int main(void)
     {
         printf(GREEN "minish $ " RESET);
         fflush(stdout);
-
         if (fgets(input, sizeof(input), stdin) == NULL)
         {
             break;
@@ -39,17 +37,18 @@ int main(void)
         }
         argv[argc] = NULL;
 
-        if (strcasecmp(argv[0], "exit") == 0 || strcasecmp(argv[0], ":q") == 0)
-        {
-            break;
-        }
-
         if (argv[0] == NULL)
         {
             continue;
         }
 
+        if (strcmp(argv[0], "exit") == 0 || strcmp(argv[0], ":q") == 0)
+        {
+            break;
+        }
+
         int pid = fork();
+
         if (pid == -1)
         {
             fprintf(stderr, "minish: %s\n", strerror(errno));
@@ -61,12 +60,11 @@ int main(void)
             for (int i = 0; i < argc; i++)
             {
                 int flags;
-
-                if (strcasecmp(argv[i], ">") == 0)
+                if (strcmp(argv[i], ">") == 0)
                 {
                     flags = O_WRONLY | O_CREAT | O_TRUNC;
                 }
-                else if (strcasecmp(argv[i], ">>") == 0)
+                else if (strcmp(argv[i], ">>") == 0)
                 {
                     flags = O_WRONLY | O_CREAT | O_APPEND;
                 }
@@ -102,7 +100,6 @@ int main(void)
             }
 
             int err = execvp(argv[0], argv);
-
             if (err == -1)
             {
                 fprintf(stderr, "minish: can't access '%s': %s\n", argv[0], strerror(errno));
