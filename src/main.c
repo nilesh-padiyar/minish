@@ -59,14 +59,30 @@ int main(void)
         {
             for (int i = 0; i < argc; i++)
             {
+                int target_fd;
                 int flags;
+
+                // output redirection (stdout)
                 if (strcmp(argv[i], ">") == 0)
                 {
                     flags = O_WRONLY | O_CREAT | O_TRUNC;
+                    target_fd = STDOUT_FILENO;
                 }
                 else if (strcmp(argv[i], ">>") == 0)
                 {
                     flags = O_WRONLY | O_CREAT | O_APPEND;
+                    target_fd = STDOUT_FILENO;
+                }
+                // error redirection (stderr)
+                else if (strcmp(argv[i], "2>") == 0)
+                {
+                    flags = O_WRONLY | O_CREAT | O_TRUNC;
+                    target_fd = STDERR_FILENO;
+                }
+                else if (strcmp(argv[i], "2>>") == 0)
+                {
+                    flags = O_WRONLY | O_CREAT | O_APPEND;
+                    target_fd = STDERR_FILENO;
                 }
                 else
                 {
@@ -86,7 +102,7 @@ int main(void)
                     exit(EXIT_FAILURE);
                 }
 
-                if (dup2(fd, STDOUT_FILENO) == -1)
+                if (dup2(fd, target_fd) == -1)
                 {
                     perror("minish: dup2");
                     close(fd);
@@ -102,7 +118,7 @@ int main(void)
             int err = execvp(argv[0], argv);
             if (err == -1)
             {
-                fprintf(stderr, "minish: can't access '%s': %s\n", argv[0], strerror(errno));
+                fprintf(stderr, "minish: %s: command not found\n", argv[0]);
                 exit(EXIT_FAILURE);
             }
         }
