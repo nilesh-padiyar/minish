@@ -23,22 +23,10 @@ Currently, minish supports:
 * `waitpid()` for waiting for child processes
 * Basic command parsing
 * Interactive shell prompt
-* Output redirection using `>`
-* Append redirection using `>>`
+* Output redirection using `>` & `>>`
+* Error redirection using `2>` & `2>>`
 * File creation, truncation and append using `open()`
 * File descriptor duplication using `dup2()`
-
-Example:
-
-```text
-minish $ ls -l
-minish $ pwd
-minish $ fastfetch
-minish $ echo "hello world" > output.txt
-minish $ echo "hello again" >> output.txt
-```
-
-Output/Append redirection works by redirecting the child process's standard output to a file before executing the requested program.
 
 ---
 
@@ -99,11 +87,10 @@ Enter any command available on your system:
 minish $ ls
 minish $ pwd
 /home/user
-
 minish $ fastfetch
 ```
 
-### Output/Append Redirection
+### Output Redirection
 
 minish supports output/append redirection using `>` and `>>` respectively:
 
@@ -122,7 +109,26 @@ hello world
 hello again
 ```
 
-If the specified file does not exist, minish creates it. If it already exists, its contents are truncated/appended before the command runs.
+### Error Redirection
+
+minish supports error output/append redirection using `2>` and `2>>` respectively:
+
+```text
+minish $ cat hello 2> error.txt
+minish $ cat hi 2>> error.txt
+```
+
+The command's standard error (`stderr`) is redirected to `error.txt` instead of the terminal.
+
+For example:
+
+```text
+minish $ cat error.txt
+cat: hello: No such file or directory
+cat: hi: No such file or directory
+```
+
+> If the specified file does not exist, minish creates it. If it already exists, its contents are truncated/appended before the command runs.
 
 To exit, use:
 
@@ -159,27 +165,13 @@ While building minish, I worked with:
 * Argument parsing
 * POSIX system calls
 * File descriptors
-* Standard input/output file descriptors
-* Output redirection
+* Output redirection (`stdout`)
+* Error Redirection (`stderr`)
 * `open()` and file access flags
 * `dup2()` and file descriptor duplication
 * Error handling in C
 * Memory management
 * GCC warning flags and strict compilation
-
----
-
-The roadmap is intentionally open-ended. The goal is to use each feature as an opportunity to learn more about Unix and systems programming.
-
-## 📌 Version
-
-**v0.3.0** — Append Redirection
-
-minish v0.3.0 builds on the basic process execution model by adding append redirection:
-
-> **Parse a command → create a child process → redirect its stdout → execute it → wait for it to finish.**
-
-The goal remains the same: keep the implementation small while learning the underlying Unix mechanisms.
 
 ---
 
