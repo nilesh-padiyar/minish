@@ -84,6 +84,12 @@ int main(void)
                     flags = O_WRONLY | O_CREAT | O_APPEND;
                     target_fd = STDERR_FILENO;
                 }
+                // input redirection (stdin)
+                else if (strcmp(argv[i], "<") == 0)
+                {
+                    flags = O_RDONLY;
+                    target_fd = STDIN_FILENO;
+                }
                 else
                 {
                     continue;

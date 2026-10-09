@@ -1,4 +1,4 @@
-# minish
+## minish
 
 A tiny Unix shell written in C, built from scratch for learning process creation, argument parsing, file descriptors, redirection, and program execution.
 
@@ -23,6 +23,7 @@ Currently, minish supports:
 * `waitpid()` for waiting for child processes
 * Basic command parsing
 * Interactive shell prompt
+* Input redirection using `<`
 * Output redirection using `>` & `>>`
 * Error redirection using `2>` & `2>>`
 * File creation, truncation and append using `open()`
@@ -37,7 +38,6 @@ The initial versions intentionally keep things simple.
 minish does **not** currently support:
 
 * Pipes (`|`)
-* Input redirection (`<`)
 * Background processes (`&`)
 * Environment variable expansion
 * Quoting and escaping
@@ -47,6 +47,8 @@ minish does **not** currently support:
 * Built-in commands such as `cd`
 
 These may be explored in future versions.
+
+---
 
 ## 🛠️ Building
 
@@ -73,17 +75,17 @@ Then run:
 
 ## 💻 Usage
 
-Start minish:
+### Start minish:
 
-```text
+```bash
 $ ./minish
 
 minish $
 ```
 
-Enter any command available on your system:
+### Enter any command available on your system:
 
-```text
+```bash
 minish $ ls
 minish $ pwd
 /home/user
@@ -94,7 +96,7 @@ minish $ fastfetch
 
 minish supports output/append redirection using `>` and `>>` respectively:
 
-```text
+```bash
 minish $ echo "hello world" > hello.txt
 minish $ echo "hello again" >> hello.txt
 ```
@@ -103,17 +105,29 @@ The command's standard output (`stdout`) is redirected to `hello.txt` instead of
 
 For example:
 
-```text
+```bash
 minish $ cat hello.txt
 hello world
 hello again
 ```
 
+### Input Redirection
+
+minish supports input redirection using `<`:
+
+```bash
+minish $ cat < hello.txt
+hello world
+hello again
+```
+
+The command's standard input (`stdin`) is redirected to `hello_2.txt` instead of the terminal.
+
 ### Error Redirection
 
 minish supports error output/append redirection using `2>` and `2>>` respectively:
 
-```text
+```bash
 minish $ cat hello 2> error.txt
 minish $ cat hi 2>> error.txt
 ```
@@ -122,19 +136,23 @@ The command's standard error (`stderr`) is redirected to `error.txt` instead of 
 
 For example:
 
-```text
+```bash
 minish $ cat error.txt
 cat: hello: No such file or directory
 cat: hi: No such file or directory
 ```
 
+The command's standard input (`stdin`) is redirected to `hello_2.txt` instead of the terminal.
+
 > If the specified file does not exist, minish creates it. If it already exists, its contents are truncated/appended before the command runs.
 
 To exit, use:
 
-```text
+```bash
 minish $ exit
 ```
+
+---
 
 ## 🧠 Why I Built This
 
@@ -142,7 +160,7 @@ This project was created primarily to understand how a Unix shell works internal
 
 Instead of using a library or framework that abstracts away process management, minish works directly with **POSIX** system calls such as:
 
-```text
+```bash
 fork()
 execvp()
 waitpid()
@@ -165,8 +183,9 @@ While building minish, I worked with:
 * Argument parsing
 * POSIX system calls
 * File descriptors
+* Input redirection (`stdin`)
 * Output redirection (`stdout`)
-* Error Redirection (`stderr`)
+* Error redirection (`stderr`)
 * `open()` and file access flags
 * `dup2()` and file descriptor duplication
 * Error handling in C
